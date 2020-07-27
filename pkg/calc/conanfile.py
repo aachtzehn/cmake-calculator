@@ -1,8 +1,8 @@
-from conans import ConanFile, CMake, tools
+from conans import ConanFile, CMake,tools
 
 
 class CalcConan(ConanFile):
-    name = "CalcLib"
+    name = "Calc"
     license = "MIT License"
     author = "Andreas Achtzehn <andreas@achtzehn.de>"
     url = "https://github.com/aachtzehn/cmake-calculator"
@@ -17,24 +17,21 @@ class CalcConan(ConanFile):
         git = tools.Git()
         self.version = "%s" % git.get_branch()
 
+    def requirements(self):
+        self.requires("CalcLib/"+self.version)
+
     def build(self):
         cmake = CMake(self, parallel=True, set_cmake_flags=True)
         # cmake .. -DBUILD_SHARED_LIBS=On -DBUILD_CALCULATORLIB=On -DCMAKE_INSTALL_PREFIX=$(pwd)/../stage -DBUILD_TESTING=On
         cmake.verbose = True
-        cmake.definitions["BUILD_CALCULATORLIB"] = True
+        cmake.definitions["BUILD_CALCULATOR"] = True
         cmake.definitions["CMAKE_INSTALL_PREFIX"] = "stage/"
         cmake.configure()
         cmake.build()
-        cmake.test()
+        #cmake.test()
         cmake.install()
 
-        # Explicit way:
-        # self.run('cmake %s/hello %s'
-        #          % (self.source_folder, cmake.command_line))
-        # self.run("cmake --build . %s" % cmake.build_config)
 
     def package(self):
-        self.copy("*",src="stage/", keep_path=True)
+        self.copy("*",src="stage", keep_path=True)
 
-    def package_info(self):
-        self.cpp_info.libs = ["CalcLib"]
